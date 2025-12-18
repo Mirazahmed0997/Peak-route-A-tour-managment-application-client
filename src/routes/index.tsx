@@ -1,31 +1,34 @@
 import App from "@/App";
-import AdminLayout from "@/components/layout/AdminLayout";
+import About from "@/pages/About";
 import Analytics from "@/pages/Analytics";
+import Login from "@/pages/Login";
+
 import { createBrowserRouter } from "react-router";
 
 
-export const router= createBrowserRouter([
+export const router = createBrowserRouter([
     {
-        
-        Component: App,
-        path:'/',
-        children:[
-            {
 
-            }
+        Component: App,
+        path: '/',
+        children: [
+            {
+                Component: Analytics,
+                path: 'analytics',
+            },
+            {
+                Component: About,
+                path: 'about',
+            },
+
         ]
     },
 
-      {
-        
-        path:'/admin',
-        Component:AdminLayout,
-        children:[
-            {
-            path:'analytics',
-            Component:Analytics
-        }
-    ]
+    {
+        Component: Login,
+        path: 'login',
     }
-  
+
+
+
 ])
