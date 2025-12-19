@@ -1,7 +1,7 @@
 
 const Footer = () => {
     return (
-        <div>
+        <div className="border">
             <footer className="bg-white border-b dark:bg-gray-950 dark:border-gray-800">
                 <div className="container lg:grid lg:grid-cols-5">
                     {/* Image Section */}
