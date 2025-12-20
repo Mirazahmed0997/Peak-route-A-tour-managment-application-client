@@ -2,7 +2,7 @@ import { useState } from "react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { Eye, EyeOff } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useLoginMutation } from "@/redux/features/auth/auth.api"
+import { toast } from "sonner"
 
 /* ------------------ Validation Schema ------------------ */
 const loginSchema = z.object({
@@ -35,7 +36,8 @@ type LoginSchema = z.infer<typeof loginSchema>
 /* ------------------ Component ------------------ */
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
-  const [login]=useLoginMutation();
+  const [login] = useLoginMutation();
+  const navigate = useNavigate()
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -45,8 +47,20 @@ export default function Login() {
     },
   })
 
-  const onSubmit = (values: LoginSchema) => {
-    console.log("Login Data:", values)
+  const onSubmit = async (data: LoginSchema) => {
+   
+    try {
+      const result = await login(data).unwrap()
+
+      console.log(result)
+
+    } catch (error: any) {
+      if (error.status === 401) {
+        toast.error("Email is not verified")
+        navigate('/verify',{state:data.email})
+      }
+      console.log(error)
+    }
   }
 
   return (

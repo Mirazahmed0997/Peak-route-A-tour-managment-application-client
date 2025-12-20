@@ -21,7 +21,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 import { useState } from "react"
 import { useRegisterMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
@@ -47,7 +47,8 @@ export default function Register() {
 
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setshowConfirmPassword] = useState(false)
-    const[register]= useRegisterMutation();
+    const [register] = useRegisterMutation();
+    const navigate = useNavigate()
 
 
     const form = useForm({
@@ -61,16 +62,20 @@ export default function Register() {
     })
 
     const onSubmit: SubmitHandler<FieldValues> = async (data) => {
-        const userInfo={
-            name:data.name,
-            email:data.email,
-            password:data.password
+        const userInfo = {
+            name: data.name,
+            email: data.email,
+            password: data.password
         }
         try {
-            const result= await register(userInfo).unwrap()
+            const result = await register(userInfo).unwrap()
             console.log(result)
             toast.success("User Create Successfully")
-        } catch (error) {
+            navigate("/verify")
+        } catch (error: any) {
+            if (error.status === 400) {
+                navigate('/verify')
+            }
             console.log(error)
         }
     }
@@ -164,7 +169,7 @@ export default function Register() {
                                     <FormItem>
                                         <FormLabel>Confirm Password</FormLabel>
                                         <FormControl>
-                                             <div className="relative">
+                                            <div className="relative">
                                                 <Input
                                                     type={showConfirmPassword ? "text" : "password"}
                                                     {...field}
