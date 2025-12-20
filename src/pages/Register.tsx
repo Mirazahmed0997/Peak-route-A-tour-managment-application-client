@@ -1,6 +1,8 @@
 import { z } from "zod"
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Eye, EyeOff } from "lucide-react"
+
 
 import { Button } from "@/components/ui/button"
 import {
@@ -20,11 +22,14 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Link } from "react-router"
+import { useState } from "react"
+import { useRegisterMutation } from "@/redux/features/auth/auth.api"
+import { toast } from "sonner"
 
 /* ------------------ Validation Schema ------------------ */
 const registerSchema = z
     .object({
-        name: z.string().min(2, "Name must be at least 2 characters"),
+        name: z.string().min(3, "Name must be at least 3 characters"),
         email: z.string().email("Invalid email address"),
         password: z.string().min(6, "Password must be at least 6 characters"),
         confirmPassword: z.string(),
@@ -34,8 +39,17 @@ const registerSchema = z
         path: ["confirmPassword"],
     })
 
+
+
+
 /* ------------------ Component ------------------ */
 export default function Register() {
+
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirmPassword, setshowConfirmPassword] = useState(false)
+    const[register]= useRegisterMutation();
+
+
     const form = useForm({
         resolver: zodResolver(registerSchema),
         defaultValues: {
@@ -46,9 +60,19 @@ export default function Register() {
         },
     })
 
-    const onSubmit : SubmitHandler<FieldValues>=(values)=> {
-        console.log("Register Data:", values)
-       
+    const onSubmit: SubmitHandler<FieldValues> = async (data) => {
+        const userInfo={
+            name:data.name,
+            email:data.email,
+            password:data.password
+        }
+        try {
+            const result= await register(userInfo).unwrap()
+            console.log(result)
+            toast.success("User Create Successfully")
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -109,7 +133,23 @@ export default function Register() {
                                     <FormItem>
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
-                                            <Input type="password" {...field} />
+                                            <div className="relative">
+                                                <Input
+                                                    type={showPassword ? "text" : "password"}
+                                                    {...field}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -124,7 +164,23 @@ export default function Register() {
                                     <FormItem>
                                         <FormLabel>Confirm Password</FormLabel>
                                         <FormControl>
-                                            <Input type="password" {...field} />
+                                             <div className="relative">
+                                                <Input
+                                                    type={showConfirmPassword ? "text" : "password"}
+                                                    {...field}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setshowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                                                >
+                                                    {showConfirmPassword ? (
+                                                        <EyeOff className="h-4 w-4" />
+                                                    ) : (
+                                                        <Eye className="h-4 w-4" />
+                                                    )}
+                                                </button>
+                                            </div>
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
