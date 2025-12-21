@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { useLocation, useNavigate } from "react-router"
 import { useSendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 const Verify = () => {
 
@@ -24,6 +25,7 @@ const Verify = () => {
 
     const location = useLocation()
     const [email] = useState(location.state)
+    const [timer, setTimer] = useState(120)
     console.log(email)
     const navigate = useNavigate()
 
@@ -60,19 +62,36 @@ const Verify = () => {
 
     const handleSendOtp = async () => {
         const toastId = toast.loading("Sending Otp")
+        setTimer(5)
         try {
             setOtpSent(true)
-            const res = await sendOtp({ email: email }).unwrap()
-            console.log(res)
+            // const res = await sendOtp({ email: email }).unwrap()
             if (res.success) {
                 toast.success("Otp sent", { id: toastId })
             }
+            setTimer(0)
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    const handleReSendOtp = async () => {
+        const toastId = toast.loading("Re-Sending Otp")
+        setTimer(120)
+        try {
+            setOtpSent(true)
+            const res = await sendOtp({ email: email }).unwrap()
+            if (res.success) {
+                toast.success("Otp sent", { id: toastId })
+            }
+            setTimer(0)
+
         } catch (error) {
             console.log(error)
         }
     }
 
-    const handleSubmit =async (e: any) => {
+    const handleSubmit = async (e: any) => {
         try {
 
             e.preventDefault()
@@ -85,7 +104,7 @@ const Verify = () => {
 
             setLoading(true)
             console.log("OTP Submitted:", otpCode)
-            const res = await verifyOtp({ email: email , otp:otpCode}).unwrap()
+            const res = await verifyOtp({ email: email, otp: otpCode }).unwrap()
 
             if (res.success) {
                 toast.success("Successfully verified")
@@ -101,6 +120,22 @@ const Verify = () => {
             console.log(error)
         }
     }
+
+
+    useEffect(() => {
+        const timerId = setInterval(() => {
+            setTimer((prev) => {
+                if (prev <= 0) {
+                    clearInterval(timerId)
+                    return 0
+                }
+                return prev - 1
+            })
+        }, 1000)
+
+        return () => clearInterval(timerId)
+    }, [])
+
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-muted px-4">
@@ -152,11 +187,22 @@ const Verify = () => {
                                 <button
                                     type="button"
                                     className="text-primary underline"
-                                    onClick={handleSendOtp}
+                                    onClick={handleReSendOtp}
+                                    disabled={timer !== 0}
                                 >
                                     Resend
                                 </button>
+
+                                <span
+                                    className={cn(
+                                        "ms-2",
+                                        timer === 0 ? "text-gray-500 cursor-default" : "text-gray-400 cursor-not-allowed"
+                                    )}
+                                >
+                                    {timer === 0 ? null : `${timer}s`}
+                                </span>
                             </p>
+
                         </form>
                     )}
                 </CardContent>
