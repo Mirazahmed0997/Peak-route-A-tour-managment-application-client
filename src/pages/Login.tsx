@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useLoginMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
+import { error } from "console"
 
 /* ------------------ Validation Schema ------------------ */
 const loginSchema = z.object({
@@ -37,6 +38,7 @@ type LoginSchema = z.infer<typeof loginSchema>
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [login] = useLoginMutation();
+  const [error,setError] = useState('');
   const navigate = useNavigate()
 
   const form = useForm<LoginSchema>({
@@ -49,7 +51,6 @@ export default function Login() {
 
   const onSubmit = async (data: LoginSchema) => {
 
-    console.log("data",data)
    
     try {
       const result = await login(data).unwrap()
@@ -62,6 +63,7 @@ export default function Login() {
         toast.error("Email is not verified")
         navigate('/verify',{state:data.email})
       }
+      setError(error.data.message)
       console.log(error)
     }
   }
@@ -129,8 +131,12 @@ export default function Login() {
                     </FormControl>
                     <FormMessage />
                   </FormItem>
+                  
+                  
                 )}
               />
+              <span className="text-red-600 text-sm mt-2">{error}</span>
+              
 
               <Button type="submit" className="w-full">
                 Login
