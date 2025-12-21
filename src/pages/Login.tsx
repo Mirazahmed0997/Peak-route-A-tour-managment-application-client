@@ -48,14 +48,17 @@ export default function Login() {
   })
 
   const onSubmit = async (data: LoginSchema) => {
+
+    console.log("data",data)
    
     try {
       const result = await login(data).unwrap()
-
+      toast.success("Successfully Logged in")
+        navigate('/')
       console.log(result)
 
     } catch (error: any) {
-      if (error.status === 401) {
+      if (error.status === 400) {
         toast.error("Email is not verified")
         navigate('/verify',{state:data.email})
       }
