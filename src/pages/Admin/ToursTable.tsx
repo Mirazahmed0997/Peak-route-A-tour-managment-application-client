@@ -1,4 +1,10 @@
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
+
+import {
   Table,
   TableBody,
   TableCell,
@@ -26,7 +32,7 @@ const ToursTable = () => {
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Tours</CardTitle>
 
-        <AddTourModal></AddTourModal>
+          <AddTourModal></AddTourModal>
         </CardHeader>
 
         <CardContent>
@@ -41,6 +47,7 @@ const ToursTable = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>#</TableHead>
+                  <TableHead></TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Cost From</TableHead>
@@ -53,6 +60,21 @@ const ToursTable = () => {
                 {tours.map((tour: any, index: number) => (
                   <TableRow key={tour._id}>
                     <TableCell>{index + 1}</TableCell>
+
+
+                    <TableCell>
+                      <Avatar className="h-10 w-10 rounded-md">
+                        <AvatarImage
+                          src={tour.images?.[0]}
+                          alt={tour.title}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="rounded-md">
+                          {tour.title?.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TableCell>
+
 
                     <TableCell className="font-medium">
                       {tour.title}
