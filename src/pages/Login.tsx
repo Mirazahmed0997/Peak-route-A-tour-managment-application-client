@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useLoginMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
-import { error } from "console"
+import config from "@/config"
 
 /* ------------------ Validation Schema ------------------ */
 const loginSchema = z.object({
@@ -38,8 +38,10 @@ type LoginSchema = z.infer<typeof loginSchema>
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [login] = useLoginMutation();
-  const [error,setError] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate()
+ 
+
 
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -51,17 +53,17 @@ export default function Login() {
 
   const onSubmit = async (data: LoginSchema) => {
 
-   
+
     try {
       const result = await login(data).unwrap()
       toast.success("Successfully Logged in")
-        navigate('/')
+      navigate('/')
       console.log(result)
 
     } catch (error: any) {
-      if (error.status === 400) {
+      if (error.status === 400 || error.status === 401) {
         toast.error("Email is not verified")
-        navigate('/verify',{state:data.email})
+        navigate('/verify', { state: data.email })
       }
       setError(error.data.message)
       console.log(error)
@@ -131,20 +133,23 @@ export default function Login() {
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                  
-                  
+
+
                 )}
               />
               <span className="text-red-600 text-sm mt-2">{error}</span>
-              
+
 
               <Button type="submit" className="w-full">
                 Login
               </Button>
 
-              <Button type="button" variant="outline" className="w-full">
+              {/* <Link cla to='http://localhost:5000/api/v1/auth/google'> */}
+              <Button onClick={() => window.open(`${config.baseUrl}/auth/google`)} type="button" variant="outline" className="w-full">
                 Login with Google
               </Button>
+
+
 
               <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}

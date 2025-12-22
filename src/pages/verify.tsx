@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useLocation, useNavigate } from "react-router"
-import { useSendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api"
+import {  useSendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/auth.api"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +34,8 @@ const Verify = () => {
     //         navigate('/')
     //     }
     // }, [email])
+
+    
 
     useEffect(() => {
         if (otpSent && inputsRef.current[0]) {
@@ -62,10 +64,10 @@ const Verify = () => {
 
     const handleSendOtp = async () => {
         const toastId = toast.loading("Sending Otp")
-        setTimer(5)
+        setTimer(120)
         try {
             setOtpSent(true)
-            // const res = await sendOtp({ email: email }).unwrap()
+            const res = await sendOtp({ email: email }).unwrap()
             if (res.success) {
                 toast.success("Otp sent", { id: toastId })
             }

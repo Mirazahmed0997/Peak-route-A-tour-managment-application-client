@@ -3,10 +3,23 @@ import { Menu } from "lucide-react"
 import { Link } from "react-router"
 import { ModeToggle } from "./ModeToggler";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { authApi, useLogoutMutation, useUserProfileQuery } from "@/redux/features/auth/auth.api";
+import { useAppDispatch } from "@/redux/hooks";
 
 
 
 const Navbar = () => {
+
+    const { data } = useUserProfileQuery(undefined)
+    const [logout] = useLogoutMutation();
+    const dispatch= useAppDispatch()
+
+    const handleLogout = async () => {
+       await logout(undefined);
+      dispatch(authApi.util.resetApiState())
+    }
+
+    console.log(data?.data.data)
 
     const navigationLinks = [
         { href: "/", label: "Home" },
@@ -40,7 +53,8 @@ const Navbar = () => {
 
                     {/* Actions */}
                     <div className="hidden md:flex items-center gap-3">
-                        <Button variant="outline"><Link to="/login">Login</Link></Button>
+                        {data?.data?.data?.email && (<Button onClick={handleLogout} variant="outline">Logout</Button>)}
+                        {!data?.data?.data?.email && (<Button variant="outline"><Link to="/login">Login</Link></Button>)}
                         <Button>Dashboard</Button>
                         <ModeToggle />
                     </div>
@@ -63,10 +77,17 @@ const Navbar = () => {
                                         {link.label}
                                     </Link>
                                 ))}
+                                {/* <div className="hidden md:flex items-center gap-3">
+                                    {data?.data?.data?.email && (<Button  variant="outline">Logout</Button>)}
+                                    {!data?.data?.data?.email && (<Button variant="outline"><Link to="/login">Login</Link></Button>)}
+                                    <Button>Dashboard</Button>
+                                    <ModeToggle />
+                                </div> */}
                             </nav>
 
-                            
+
                         </PopoverContent>
+
                     </Popover>
 
                 </div>
