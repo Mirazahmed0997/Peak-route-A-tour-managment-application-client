@@ -12,11 +12,11 @@ const Navbar = () => {
 
     const { data } = useUserProfileQuery(undefined)
     const [logout] = useLogoutMutation();
-    const dispatch= useAppDispatch()
+    const dispatch = useAppDispatch()
 
     const handleLogout = async () => {
-       await logout(undefined);
-      dispatch(authApi.util.resetApiState())
+        await logout(undefined);
+        dispatch(authApi.util.resetApiState())
     }
 
     console.log(data?.data.data)
@@ -55,7 +55,22 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center gap-3">
                         {data?.data?.data?.email && (<Button onClick={handleLogout} variant="outline">Logout</Button>)}
                         {!data?.data?.data?.email && (<Button variant="outline"><Link to="/login">Login</Link></Button>)}
-                        <Button>Dashboard</Button>
+                        {data?.data?.data?.role === "ADMIN" && (
+                            <Button>
+                                <Link to="/admin">Dashboard</Link>
+                            </Button>
+                        )}
+                        {data?.data?.data?.role === "SUPER_ADMIN" && (
+                            <Button>
+                                <Link to="/admin">Dashboard</Link>
+                            </Button>
+                        )}
+
+                        {data?.data?.data?.role === "USER" && (
+                            <Button>
+                                <Link to="/user">Dashboard</Link>
+                            </Button>
+                        )}
                         <ModeToggle />
                     </div>
 
@@ -75,14 +90,10 @@ const Navbar = () => {
                                         className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-1 px-2 rounded-md transition-colors"
                                     >
                                         {link.label}
+                                        
                                     </Link>
+                                    
                                 ))}
-                                {/* <div className="hidden md:flex items-center gap-3">
-                                    {data?.data?.data?.email && (<Button  variant="outline">Logout</Button>)}
-                                    {!data?.data?.data?.email && (<Button variant="outline"><Link to="/login">Login</Link></Button>)}
-                                    <Button>Dashboard</Button>
-                                    <ModeToggle />
-                                </div> */}
                             </nav>
 
 
