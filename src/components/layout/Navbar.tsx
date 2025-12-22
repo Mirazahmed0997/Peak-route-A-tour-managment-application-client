@@ -19,7 +19,7 @@ const Navbar = () => {
         dispatch(authApi.util.resetApiState())
     }
 
-    console.log(data?.data.data)
+    // console.log(data?.data.data)
 
     const navigationLinks = [
         { href: "/", label: "Home" },
