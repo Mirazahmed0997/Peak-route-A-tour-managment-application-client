@@ -9,6 +9,7 @@ import { generateRoutes } from "@/utils/generateRoutes";
 
 import { createBrowserRouter } from "react-router";
 import { adminSidebarItems } from "./AdminSidbarItems";
+import { userSidebarItems } from "./UserSidebarItems";
 
 export const router = createBrowserRouter([
   {
@@ -34,10 +35,7 @@ export const router = createBrowserRouter([
     path: "/user",
     Component: DashboardLayout,
     children: [
-      {
-        path: "bookings",   
-        Component: Bookings,
-      },
+      ...generateRoutes(userSidebarItems)
     ],
   },
 
