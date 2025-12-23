@@ -10,6 +10,15 @@ export const divisonApi = baseApi.injectEndpoints({
         method: "POST",
         body: tourTypeInfo
       }),
+      invalidatesTags:["DIVISION"]
+    }),
+
+    deleteDivision: builder.mutation({
+      query: (divisionId) => ({
+        url: `/division/${divisionId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags:["DIVISION"]
     }),
   
    
@@ -18,14 +27,15 @@ export const divisonApi = baseApi.injectEndpoints({
         url: "/division",
         method: "GET",
       }),
+      providesTags:["DIVISION"],
       transformResponse:(res)=> res.data.data
     }),
-
 
   })
 })
 
 export const { 
     useCreateDivisionMutation,
-    useDivisionsQuery
+    useDivisionsQuery,
+    useDeleteDivisionMutation
 } = divisonApi
