@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -8,8 +9,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
     Select,
     SelectContent,
@@ -17,7 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import { Minus, Plus, PlusIcon, Trash, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -26,89 +34,103 @@ import {
 } from "@/redux/features/tour/tour.api";
 import { useDivisionsQuery } from "@/redux/features/division/division.api";
 
+interface TourFormValues {
+    title: string;
+    location?: string;
+    costFrom?: number;
+    maxGuest?: number;
+    tourType: string;
+    division: string;
+    startDate?: string;
+    endDate?: string;
+    images?: File[];
+    included?: { value: string }[];
+    exCluded?: { value: string }[];
+    tourPlan?: { value: string }[];
+    amenities?: { value: string }[];
+}
+
 const AddTourModal = () => {
     const [open, setOpen] = useState(false);
-    const [images, setImages] = useState<File[]>([]);
-
-    const { data: divisionsData } = useDivisionsQuery(undefined);
-    const { data: tourTypesData } = useTourTypesQuery(undefined);
-
-    const divisions = divisionsData ?? [];
-    const tourTypes = tourTypesData ?? [];
-
+    const { data: divisions = [] } = useDivisionsQuery(undefined);
+    const { data: tourTypes = [] } = useTourTypesQuery(undefined);
     const [createTour, { isLoading }] = useCreateTourMutation();
 
-    const [form, setForm] = useState({
-        title: "",
-        location: "",
-        costFrom: "",
-        maxGuest: "",
-        tourType: "",
-        division: "",
-        startDate: "",
-        endDate: "",
+    const form = useForm<TourFormValues>({
+        defaultValues: {
+            title: "",
+            location: "",
+            costFrom: undefined,
+            maxGuest: undefined,
+            tourType: "",
+            division: "",
+            startDate: "",
+            endDate: "",
+            images: [],
+            included: [{ value: "" }],
+            exCluded: [{ value: "" }],
+            tourPlan: [{ value: "" }],
+            amenities: [{ value: "" }],
+        },
     });
 
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "included",
+    });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
+    // console.log(fields)
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setImages(Array.from(e.target.files));
-        }
-    };
+    const exCludedFields = useFieldArray({
+        control: form.control,
+        name: "exCluded",
+    });
 
-    const handleSubmit = async () => {
-        if (!form.title || !form.tourType || !form.division) {
-            toast.error("Please fill required fields");
-            return;
-        }
+    const tourPlanFields = useFieldArray({
+        control: form.control,
+        name: "tourPlan",
+    });
 
+    const amenitiesFields = useFieldArray({
+        control: form.control,
+        name: "amenities",
+    });
+
+    const [images, setImages] = useState<File[]>([]);
+
+    const onSubmit = async (values: TourFormValues) => {
         const formData = new FormData();
 
-        formData.append(
-            "data",
-            JSON.stringify({
-              title: form.title,
-              location: form.location,
-              costFrom: Number(form.costFrom),
-              maxGuest: Number(form.maxGuest),
-              tourType: form.tourType,
-              division: form.division,
-              startDate: form.startDate ? new Date(form.startDate) : undefined,
-              endDate: form.endDate ? new Date(form.endDate) : undefined,
-            })
-          );
-          
+        const { images, ...rest } = values;
 
-        //  images
-        images.forEach((image) => {
-            formData.append("files", image);
+        // Convert array of objects to array of strings
+        const payload = {
+            ...rest,
+            included: rest?.included?.map((item) => item.value),
+            exCluded: rest?.exCluded?.map((item) => item.value),
+            tourPlan: rest?.tourPlan?.map((item) => item.value),
+            amenities: rest?.amenities?.map((item) => item.value),
+        };
+
+        formData.append("data", JSON.stringify(payload));
+
+        images?.forEach((file) => {
+            formData.append("files", file);
         });
 
         try {
             await createTour(formData).unwrap();
             toast.success("Tour created successfully");
-
+            form.reset();
             setOpen(false);
-            setForm({
-                title: "",
-                location: "",
-                costFrom: "",
-                maxGuest: "",
-                tourType: "",
-                division: "",
-                startDate: "",
-                endDate: "",
-            });
             setImages([]);
         } catch (error) {
             toast.error("Failed to create tour");
             console.error(error);
         }
     };
+
+
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -119,137 +141,381 @@ const AddTourModal = () => {
                 </Button>
             </DialogTrigger>
 
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Add New Tour</DialogTitle>
                 </DialogHeader>
 
-                <div className="grid gap-4">
-                    <div>
-                        <Label>Title *</Label>
-                        <Input
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        {/* Title */}
+                        <FormField
+                            control={form.control}
                             name="title"
-                            value={form.title}
-                            onChange={handleChange}
-                            placeholder="Tour title"
+                            rules={{ required: "Title is required" }}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Title *</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Tour title" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
 
-                    <div>
-                        <Label>Location</Label>
-                        <Input
+                        {/* Location */}
+                        <FormField
+                            control={form.control}
                             name="location"
-                            value={form.location}
-                            onChange={handleChange}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Location</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
                         />
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <Label>Cost From</Label>
-                            <Input
-                                type="number"
+                        {/* Cost & Guests */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <FormField
+                                control={form.control}
                                 name="costFrom"
-                                value={form.costFrom}
-                                onChange={handleChange}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Cost From</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-
-                        <div>
-                            <Label>Max Guests</Label>
-                            <Input
-                                type="number"
+                            <FormField
+                                control={form.control}
                                 name="maxGuest"
-                                value={form.maxGuest}
-                                onChange={handleChange}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Max Guests</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
                             />
                         </div>
-                    </div>
 
-                    {/* Tour Type */}
-                    <div>
-                        <Label>Tour Type *</Label>
-                        <Select
-                            value={form.tourType}
-                            onValueChange={(value) =>
-                                setForm({ ...form, tourType: value })
-                            }
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select tour type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {tourTypes.map((type: any) => (
-                                    <SelectItem key={type._id} value={type._id}>
-                                        {type.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                        <div className="grid grid-cols-2 gap-3">
 
-                    {/* Division */}
-                    <div>
-                        <Label>Division *</Label>
-                        <Select
-                            value={form.division}
-                            onValueChange={(value) =>
-                                setForm({ ...form, division: value })
-                            }
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select division" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {divisions.map((div: any) => (
-                                    <SelectItem key={div._id} value={div._id}>
-                                        {div.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                            {/* Tour Type */}
+                            <FormField
+                                control={form.control}
+                                name="tourType"
+                                rules={{ required: "Tour type is required" }}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Tour Type *</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select tour type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {tourTypes.map((type: any) => (
+                                                    <SelectItem key={type._id} value={type._id}>
+                                                        {type.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                    {/* Images */}
-                    <div>
-                        <Label>Tour Images</Label>
-                        <Input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={handleImageChange}
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <Label>Start Date</Label>
-                            <Input
-                                type="date"
+                            {/* Division */}
+                            <FormField
+                                control={form.control}
+                                name="division"
+                                rules={{ required: "Division is required" }}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Division *</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select division" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {divisions.map((div: any) => (
+                                                    <SelectItem key={div._id} value={div._id}>
+                                                        {div.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Dates */}
+                        <div className="grid grid-cols-2 gap-3">
+                            <FormField
+                                control={form.control}
                                 name="startDate"
-                                value={form.startDate}
-                                onChange={handleChange}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Start Date</FormLabel>
+                                        <FormControl>
+                                            <Input type="date" {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
                             />
-                        </div>
-
-                        <div>
-                            <Label>End Date</Label>
-                            <Input
-                                type="date"
+                            <FormField
+                                control={form.control}
                                 name="endDate"
-                                value={form.endDate}
-                                onChange={handleChange}
-                                min={form.startDate} // prevents invalid range
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>End Date</FormLabel>
+                                        <FormControl>
+                                            <Input type="date" {...field} min={form.watch("startDate")} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
                             />
                         </div>
-                    </div>
 
-                </div>
+                        {/* Images */}
+                        <FormField
+                            control={form.control}
+                            name="images"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Tour Images</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="file"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={(e) =>
+                                                field.onChange(e.target.files ? Array.from(e.target.files) : [])
+                                            }
+                                        />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
 
-                <DialogFooter>
-                    <Button onClick={handleSubmit} disabled={isLoading}>
-                        {isLoading ? "Creating..." : "Create Tour"}
-                    </Button>
-                </DialogFooter>
+
+                        {/* Includes */}
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">Includes</span>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                    onClick={() => append({ value: "" })}
+                                >
+                                    <PlusIcon className="h-4 w-4" /> Add
+                                </Button>
+                            </div>
+                            <div className="space-y-2">
+                                {fields.map((field, index) => (
+                                    <div
+                                        key={field.id}
+                                        className="flex items-center gap-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                    >
+                                        <Controller
+                                            name={`included.${index}.value`}
+                                            control={form.control}
+                                            render={({ field }) => (
+                                                <Input
+                                                    {...field}
+                                                    placeholder={`Include #${index + 1}`}
+                                                    className="flex-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+                                                />
+                                            )}
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => remove(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Excluded */}
+                        <div className="space-y-3 mt-6">
+                            <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">
+                                    Excludes
+                                </span>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                    onClick={() => exCludedFields.append({ value: "" })}
+                                >
+                                    <PlusIcon className="h-4 w-4" /> Add
+                                </Button>
+                            </div>
+
+                            {exCludedFields.fields.map((field, index) => (
+                                <div
+                                    key={field.id}
+                                    className="flex items-center gap-2 rounded-md border bg-gray-50 dark:bg-gray-800
+                 border-gray-200 dark:border-gray-700 p-2
+                 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <Controller
+                                        name={`exCluded.${index}.value`}
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                placeholder={`Exclude #${index + 1}`}
+                                                className="flex-1 bg-white dark:bg-gray-900
+                       text-gray-900 dark:text-gray-100
+                       border-gray-300 dark:border-gray-600"
+                                            />
+                                        )}
+                                    />
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => exCludedFields.remove(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+
+
+                        {/* Tour Plan */}
+                        <div className="space-y-3 mt-6">
+                            <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">
+                                    Tour Plan
+                                </span>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                    onClick={() => tourPlanFields.append({ value: "" })}
+                                >
+                                    <PlusIcon className="h-4 w-4" /> Add
+                                </Button>
+                            </div>
+
+                            {tourPlanFields.fields.map((field, index) => (
+                                <div
+                                    key={field.id}
+                                    className="flex items-center gap-2 rounded-md border bg-gray-50 dark:bg-gray-800
+                 border-gray-200 dark:border-gray-700 p-2
+                 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <Controller
+                                        name={`tourPlan.${index}.value`}
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                placeholder={`Plan #${index + 1}`}
+                                                className="flex-1 bg-white dark:bg-gray-900
+                       text-gray-900 dark:text-gray-100
+                       border-gray-300 dark:border-gray-600"
+                                            />
+                                        )}
+                                    />
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => tourPlanFields.remove(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+
+
+                        {/* Amenities */}
+                        <div className="space-y-3 mt-6">
+                            <div className="flex items-center justify-between">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">
+                                    Amenities
+                                </span>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1"
+                                    onClick={() => amenitiesFields.append({ value: "" })}
+                                >
+                                    <PlusIcon className="h-4 w-4" /> Add
+                                </Button>
+                            </div>
+
+                            {amenitiesFields.fields.map((field, index) => (
+                                <div
+                                    key={field.id}
+                                    className="flex items-center gap-2 rounded-md border bg-gray-50 dark:bg-gray-800
+                 border-gray-200 dark:border-gray-700 p-2
+                 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                >
+                                    <Controller
+                                        name={`amenities.${index}.value`}
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Input
+                                                {...field}
+                                                placeholder={`Amenity #${index + 1}`}
+                                                className="flex-1 bg-white dark:bg-gray-900
+                       text-gray-900 dark:text-gray-100
+                       border-gray-300 dark:border-gray-600"
+                                            />
+                                        )}
+                                    />
+                                    <Button
+                                        type="button"
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => amenitiesFields.remove(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+
+
+
+
+
+
+
+
+                        <DialogFooter>
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? "Creating..." : "Create Tour"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
             </DialogContent>
         </Dialog>
     );

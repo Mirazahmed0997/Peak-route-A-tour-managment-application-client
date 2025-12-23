@@ -33,9 +33,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <Link to="/"><p className="text-xl font-bold text-gray-900 dark:text-gray-100">
           PeakRoute
-        </p>
+        </p></Link>
 
         {/* <SearchForm /> */}
       </SidebarHeader>
