@@ -44,6 +44,7 @@ export const authApi = baseApi.injectEndpoints({
         url: "/user/userProfile",
         method: "GET",
       }),
+      transformResponse: (res) => res.data.data,
       providesTags:["USER"]
     }),
 
