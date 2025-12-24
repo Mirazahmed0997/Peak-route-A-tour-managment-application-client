@@ -10,7 +10,10 @@ import { useAppDispatch } from "@/redux/hooks";
 
 const Navbar = () => {
 
-    const { data } = useUserProfileQuery(undefined)
+    const { data ,isLoading} = useUserProfileQuery(undefined)
+
+    
+
     const [logout] = useLogoutMutation();
     const dispatch = useAppDispatch()
 
@@ -19,17 +22,18 @@ const Navbar = () => {
         dispatch(authApi.util.resetApiState())
     }
 
-    // console.log(data?.data.data)
+    console.log(data?.email)
 
     const navigationLinks = [
         { href: "/", label: "Home" },
-        { href: "/tours", label: "Tours" },
+        { href: "/tour", label: "Tours" },
         { href: "/about", label: "About" },
         { href: "/contact", label: "Contact" },
     ]
 
     return (
         <div className="">
+            
             <header className="container sticky top-0 z-50 w-full border-b bg-white/80 backdrop-blur dark:bg-gray-950/80 dark:border-gray-800">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
 
@@ -53,20 +57,20 @@ const Navbar = () => {
 
                     {/* Actions */}
                     <div className="hidden md:flex items-center gap-3">
-                        {data?.data?.data?.email && (<Button onClick={handleLogout} variant="outline">Logout</Button>)}
-                        {!data?.data?.data?.email && (<Button variant="outline"><Link to="/login">Login</Link></Button>)}
-                        {data?.data?.data?.role === "ADMIN" && (
+                        {data?.email && (<Button onClick={handleLogout} variant="outline">Logout</Button>)}
+                        {!isLoading && !data?.email &&(<Button variant="outline"><Link to="/login">Login</Link></Button>)}
+                        {data?.role === "ADMIN" && (
                             <Button>
                                 <Link to="/admin">Dashboard</Link>
                             </Button>
                         )}
-                        {data?.data?.data?.role === "SUPER_ADMIN" && (
+                        {data?.role === "SUPER_ADMIN" && (
                             <Button>
                                 <Link to="/admin">Dashboard</Link>
                             </Button>
                         )}
 
-                        {data?.data?.data?.role === "USER" && (
+                        {data?.role === "USER" && (
                             <Button>
                                 <Link to="/user">Dashboard</Link>
                             </Button>

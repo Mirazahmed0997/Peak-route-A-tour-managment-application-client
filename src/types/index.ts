@@ -2,6 +2,7 @@ export type { IsendOtp, IverifyOtp } from './auth.type'
 import type { ComponentType } from "react";
 
 
+
 export interface IResponse<T> {
   success: boolean
   statusCode: number
