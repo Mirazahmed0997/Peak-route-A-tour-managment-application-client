@@ -17,6 +17,9 @@ import HomePage from "@/pages/Home/HomePage";
 import TourDetails from "@/pages/Tours/TourDetails";
 import AllTours from "@/pages/Tours/AllTous";
 import Bookings from "@/pages/User/Bookings";
+import Success from "@/pages/Payment/Success";
+import Fail from "@/pages/Payment/Fail";
+import Cancel from "@/pages/Payment/Cancel";
 
 export const router = createBrowserRouter([
   {
@@ -42,8 +45,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "booking/:id",
-        Component: Bookings,
-        // Component: withAuth(Bookings),
+        Component: withAuth(Bookings),
       },
     ],
   },
@@ -81,5 +83,17 @@ export const router = createBrowserRouter([
   {
     path: "unAuthorised",
     Component: unAuthorised,
+  },
+  {
+    path: "payment/success",
+    Component: Success,
+  },
+  {
+    path: "payment/fail",
+    Component: Fail,
+  },
+  {
+    path: "payment/cancel",
+    Component: Cancel,
   },
 ]);

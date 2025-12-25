@@ -60,6 +60,7 @@ const Bookings = () => {
             const res=await createBooking(payload).unwrap();
             console.log(res)
             toast.success("Booking is suucessfully Complete", { id: toastId })
+            window.open(res.data.paymentUrl)
         } catch (error) {
             console.log(error)
         }
