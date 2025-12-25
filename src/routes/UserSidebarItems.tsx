@@ -15,5 +15,17 @@ export const userSidebarItems : ISidebarItem[]=[
           },       
         ],
       },
+
+      {
+        title: "Managment",
+        items: [
+          {
+            title: "All Bookings",
+            url: "/user/bookings",
+            component:BookingTable
+          },       
+                
+        ],
+      },
     
 ]
