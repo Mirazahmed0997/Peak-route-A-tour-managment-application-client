@@ -1,5 +1,14 @@
 import { Button } from "@/components/ui/button";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
+import {
   Card,
   CardContent,
   CardHeader,
@@ -23,27 +32,32 @@ import {
 import AddTourTypeModal from "@/components/modules/Admin/TourType/AddTourTypeModal";
 import { DeleteConfirmation } from "@/components/DeleteConfirmation";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const AddTourType = () => {
-  const { data, isLoading } = useTourTypesQuery(undefined);
-  console.log(data)
-  const tourTypes = data ?? [];
-  const [removeTourTypes]=useRemoveTourTypesMutation();
+  const [currentPage, setCurrentPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const { data, isLoading } = useTourTypesQuery({ page: currentPage, limit: limit });
+  const tourTypes = data?.data ?? [];
+  const [removeTourTypes] = useRemoveTourTypesMutation();
 
-  const handleReomveTourType = async(tourTypeId : string)=>
-    {
-      const toastId= toast.loading("Deleting")
-      try {
-        const res= await removeTourTypes(tourTypeId).unwrap()
-        console.log(res)
-        if(res.success)
-          {
-            toast.success("Removed Successfully",{id: toastId})
-          }
-      } catch (error) {
-        console.log(error)
+  const totalPage = data?.meta?.totalPage
+
+
+  // console.log(currentPage)
+
+  const handleReomveTourType = async (tourTypeId: string) => {
+    const toastId = toast.loading("Deleting")
+    try {
+      const res = await removeTourTypes(tourTypeId).unwrap()
+      console.log(res)
+      if (res.success) {
+        toast.success("Removed Successfully", { id: toastId })
       }
+    } catch (error) {
+      console.log(error)
     }
+  }
 
   return (
     <div className="p-6">
@@ -83,7 +97,7 @@ const AddTourType = () => {
                     </TableCell>
                     <TableCell className="">
 
-                      <DeleteConfirmation onConfirm={()=>handleReomveTourType(item._id)}>
+                      <DeleteConfirmation onConfirm={() => handleReomveTourType(item._id)}>
                         <Button size='sm'> <Trash></Trash></Button>
                       </DeleteConfirmation>
                     </TableCell>
@@ -97,6 +111,45 @@ const AddTourType = () => {
           )}
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <div>
+          {
+            totalPage>1 &&
+            <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage((prev) => prev - 1)}
+                  className={currentPage === 1 ? "pointer-events-none opacity-20" : "pointer-events-auto"}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => {
+                    if (currentPage < (data?.meta?.totalPage || 1)) {
+                      setCurrentPage((prev) => prev + 1);
+                    }
+                  }}
+                  className={
+                    currentPage >= (data?.meta?.totalPage || 1)
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                  aria-disabled={currentPage >= (data?.meta?.totalPage || 1)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          }
+        </div>
+      </div>
     </div>
   );
 };

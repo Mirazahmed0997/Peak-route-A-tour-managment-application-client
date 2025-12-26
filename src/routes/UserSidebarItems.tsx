@@ -1,7 +1,9 @@
 
-import BookingTable from "@/components/modules/User/BookingTable";
-import Bookings from "@/pages/User/Bookings";
 import { ISidebarItem } from "@/types";
+import { lazy } from "react";
+
+const BookingTable =lazy(()=>import("@/components/modules/User/BookingTable"))
+
 
 
 export const userSidebarItems : ISidebarItem[]=[
@@ -24,6 +26,7 @@ export const userSidebarItems : ISidebarItem[]=[
             url: "/user/bookings",
             component:BookingTable
           },       
+             
                 
         ],
       },
