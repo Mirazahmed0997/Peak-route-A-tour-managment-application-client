@@ -53,7 +53,11 @@ interface TourFormValues {
 const AddTourModal = () => {
     const [open, setOpen] = useState(false);
     const { data: divisions = [] } = useDivisionsQuery(undefined);
-    const { data: tourTypes = [] } = useTourTypesQuery(undefined);
+    const { data } = useTourTypesQuery(undefined);
+
+    const tourTypes= data?.data
+
+
     const [createTour, { isLoading }] = useCreateTourMutation();
 
     const form = useForm<TourFormValues>({

@@ -52,6 +52,7 @@ const ToursTable = () => {
   const tours = data?.data ?? [];
 
   const totalPage = data?.meta?.totalPage
+  console.log(tours)
 
   // console.log(currentPage)
 
@@ -176,8 +177,8 @@ const ToursTable = () => {
                               <div>
                                 <h4 className="font-semibold text-sm">Includes</h4>
                                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                                  {tour.included?.length
-                                    ? tour.included.map((i: string, idx: number) => (
+                                  {tour?.included?.length
+                                    ? tour?.included?.map((i: string, idx: number) => (
                                       <li key={idx}>{i}</li>
                                     ))
                                     : "—"}
@@ -188,8 +189,8 @@ const ToursTable = () => {
                               <div>
                                 <h4 className="font-semibold text-sm">Excludes</h4>
                                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                                  {tour.exCluded?.length
-                                    ? tour.exCluded.map((i: string, idx: number) => (
+                                  {tour?.exCluded?.length
+                                    ? tour?.exCluded?.map((i: string, idx: number) => (
                                       <li key={idx}>{i}</li>
                                     ))
                                     : "—"}
@@ -200,8 +201,8 @@ const ToursTable = () => {
                               <div>
                                 <h4 className="font-semibold text-sm">Tour Plan</h4>
                                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                                  {tour.tourPlan?.length
-                                    ? tour.tourPlan.map((i: string, idx: number) => (
+                                  {tour?.tourPlan?.length
+                                    ? tour?.tourPlan.map((i: string, idx: number) => (
                                       <li key={idx}>{i}</li>
                                     ))
                                     : "—"}
@@ -211,9 +212,12 @@ const ToursTable = () => {
                               {/* AMENITIES */}
                               <div>
                                 <h4 className="font-semibold text-sm">Amenities</h4>
+                                {/* <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                                  {tour?.amenities}
+                                </ul> */}
                                 <ul className="list-disc pl-5 text-sm text-muted-foreground">
-                                  {tour.amenities?.length
-                                    ? tour.amenities.map((i: string, idx: number) => (
+                                  {tour?.amenities?.length
+                                    ? tour?.amenities?.map((i: string, idx: number) => (
                                       <li key={idx}>{i}</li>
                                     ))
                                     : "—"}
