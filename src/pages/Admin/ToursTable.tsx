@@ -4,6 +4,15 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 import {
   Collapsible,
@@ -28,13 +37,23 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRemoveTourMutation, useToursQuery } from "@/redux/features/tour/tour.api";
-import { Edit, Trash,ChevronDown } from "lucide-react";
+import { Edit, Trash, ChevronDown } from "lucide-react";
 import AddTourModal from "@/components/modules/Admin/Tour/AddTourModal";
 import { DeleteConfirmation } from "@/components/DeleteConfirmation";
 import { toast } from "sonner";
+import { useState } from "react";
 
 const ToursTable = () => {
-  const { data: tours = [], isLoading } = useToursQuery(undefined);
+
+  const [currentPage, setCurrentPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+
+  const { data, isLoading } = useToursQuery({limit:limit,page:currentPage});
+  const tours = data?.data ?? [];
+
+  const totalPage = data?.meta?.totalPage
+
+  // console.log(currentPage)
 
   const [removeTour] = useRemoveTourMutation()
 
@@ -211,11 +230,50 @@ const ToursTable = () => {
               </TableBody>
 
 
-             
+
             </Table>
           )}
         </CardContent>
       </Card>
+
+      <div className="flex justify-end">
+        <div>
+          {
+            totalPage > 1 &&
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setCurrentPage((prev) => prev - 1)}
+                    className={currentPage === 1 ? "pointer-events-none opacity-20" : "pointer-events-auto"}
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => {
+                      if (currentPage < (data?.meta?.totalPage || 1)) {
+                        setCurrentPage((prev) => prev + 1);
+                      }
+                    }}
+                    className={
+                      currentPage >= (data?.meta?.totalPage || 1)
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                    aria-disabled={currentPage >= (data?.meta?.totalPage || 1)}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          }
+        </div>
+      </div>
     </div>
   );
 };

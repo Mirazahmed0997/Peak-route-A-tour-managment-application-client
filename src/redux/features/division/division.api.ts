@@ -23,9 +23,10 @@ export const divisonApi = baseApi.injectEndpoints({
   
    
     divisions: builder.query({
-      query: () => ({
+      query: (divisionId) => ({
         url: "/division",
         method: "GET",
+        params:divisionId
       }),
       providesTags:["DIVISION"],
       transformResponse:(res)=> res.data.data

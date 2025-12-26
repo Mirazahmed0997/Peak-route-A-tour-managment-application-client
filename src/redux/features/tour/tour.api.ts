@@ -17,11 +17,12 @@ export const tourApi = baseApi.injectEndpoints({
     }),
 
     tourTypes: builder.query({
-      query: () => ({
+      query: (params) => ({
         url: "/TourType",
         method: "GET",
+        params:params
       }),
-      transformResponse: (res) => res.data.data,
+      transformResponse: (res) => res.data,
       providesTags: ["TOUR"]
     }),
 
@@ -60,7 +61,7 @@ export const tourApi = baseApi.injectEndpoints({
         method: "GET",
         params:tourId
       }),
-      transformResponse: (res) => res.data.data,
+      transformResponse: (res) => res.data,
       providesTags: ["TOUR"]
     }),
 
