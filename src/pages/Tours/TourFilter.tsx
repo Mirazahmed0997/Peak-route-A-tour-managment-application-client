@@ -4,14 +4,12 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
 import { useDivisionsQuery } from "@/redux/features/division/division.api";
 import { useTourTypesQuery } from "@/redux/features/tour/tour.api";
 import { X } from "lucide-react";
-import { useState } from "react";
 import { useSearchParams } from "react-router";
 
 
@@ -29,7 +27,7 @@ const TourFilter = () => {
     const { data: divisionData, isLoading: divisionLoading } = useDivisionsQuery(undefined);
     const divisions = divisionData || [];
 
-    const { data: tourTypeData, isLoading: tourTypeLoading } = useTourTypesQuery({limit:1000,fields:"_id, name"});
+    const { data: tourTypeData, isLoading: tourTypeLoading } = useTourTypesQuery(undefined);
     const tourTypes = tourTypeData || [];
 
     const handleDivisionChange = (value: string) => {

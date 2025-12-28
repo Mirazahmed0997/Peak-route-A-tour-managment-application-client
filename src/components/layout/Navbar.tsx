@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
-import { Link, useSearchParams } from "react-router"
+import { Link } from "react-router"
 import { ModeToggle } from "./ModeToggler";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { authApi, useLogoutMutation, useUserProfileQuery } from "@/redux/features/auth/auth.api";
 import { useAppDispatch } from "@/redux/hooks";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
-import { useDivisionsQuery } from "@/redux/features/division/division.api";
 
 
 

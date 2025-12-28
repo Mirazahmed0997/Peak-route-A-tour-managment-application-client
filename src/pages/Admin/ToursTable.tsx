@@ -46,9 +46,9 @@ import { useState } from "react";
 const ToursTable = () => {
 
   const [currentPage, setCurrentPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  // const [limit, setLimit] = useState(10)
 
-  const { data, isLoading } = useToursQuery({limit:limit,page:currentPage});
+  const { data, isLoading } = useToursQuery({limit:10,page:currentPage});
   const tours = data?.data ?? [];
 
   const totalPage = data?.meta?.totalPage

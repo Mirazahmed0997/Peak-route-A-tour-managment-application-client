@@ -36,8 +36,8 @@ import { useState } from "react";
 
 const AddTourType = () => {
   const [currentPage, setCurrentPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const { data, isLoading } = useTourTypesQuery({ page: currentPage, limit: limit });
+  // const [limit, setLimit] = useState(10)
+  const { data, isLoading } = useTourTypesQuery({ page: currentPage, limit: 10 });
   const tourTypes = data?.data ?? [];
   const [removeTourTypes] = useRemoveTourTypesMutation();
 

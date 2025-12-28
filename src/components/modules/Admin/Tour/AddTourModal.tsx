@@ -25,7 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Minus, Plus, PlusIcon, Trash, Trash2 } from "lucide-react";
+import {  Plus, PlusIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -101,6 +101,7 @@ const AddTourModal = () => {
     });
 
     const [images, setImages] = useState<File[]>([]);
+    console.log(images)
 
     const onSubmit = async (values: TourFormValues) => {
         const formData = new FormData();
