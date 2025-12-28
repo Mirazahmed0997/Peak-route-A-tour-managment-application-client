@@ -15,11 +15,12 @@ import { role } from "@/constants/Role";
 import { TRole } from "@/types";
 import HomePage from "@/pages/Home/HomePage";
 import TourDetails from "@/pages/Tours/TourDetails";
-import AllTours from "@/pages/Tours/AllTous";
+import AllTours from "@/pages/Tours/AllTours";
 import Bookings from "@/pages/User/Bookings";
 import Success from "@/pages/Payment/Success";
 import Fail from "@/pages/Payment/Fail";
 import Cancel from "@/pages/Payment/Cancel";
+import Contact from "@/pages/Contact/Contact";
 
 export const router = createBrowserRouter([
   {
@@ -38,6 +39,10 @@ export const router = createBrowserRouter([
       {
         path: "tour",
         Component: AllTours,
+      },
+      {
+        path: "contact",
+        Component: Contact,
       },
       {
         path: "tour/:id",

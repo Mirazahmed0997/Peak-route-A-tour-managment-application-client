@@ -4,11 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToursQuery } from "@/redux/features/tour/tour.api";
 
-/**
- * Replace this with your API hook
- * ex: useGetSingleTourQuery(id)
- */
-// const useTour = (id) => {
 //   // MOCK DATA (remove when API is connected)
 //   return {
 //     data: {
@@ -42,7 +37,7 @@ const TourDetails = () => {
   console.log(id)
   const { data, isLoading } = useToursQuery({ _id: id });
 
-  const tour = data?.[0]
+  const tour = data?.data?.[0]
 
   if (isLoading) {
     return (

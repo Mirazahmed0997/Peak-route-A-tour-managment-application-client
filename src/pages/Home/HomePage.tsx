@@ -1,4 +1,4 @@
-import AllTours from "../Tours/AllTous";
+import AllTours from "../Tours/AllTours";
 import HeroBanner from "./HeroBanner";
 
 const HomePage = () => {

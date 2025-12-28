@@ -5,26 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Users, MapPin } from "lucide-react";
 import { useToursQuery } from "@/redux/features/tour/tour.api";
-import { useUserProfileQuery } from "@/redux/features/auth/auth.api";
 import { useCreateBookingMutation } from "@/redux/features/booking/booking.api";
 import { toast } from "sonner";
 // import { useCreateBookingMutation } from "@/redux/features/booking/booking.api";
 
 const Bookings = () => {
-    const { id } = useParams(); // tour id
+    const { id } = useParams();
     const { data, isLoading } = useToursQuery({ _id: id });
-    const { data: user } = useUserProfileQuery(undefined);
 
 
-    console.log(user?._id)
 
-    const tour = data?.[0]
-    console.log(tour?._id)
+    const tour = data?.data?.[0]
+    // console.log(tour?._id)
 
 
     const [guestCount, setGuestCount] = useState(1);
 
-    const [createBooking, { isLoading: bookingLoading }] =
+    const [createBooking] =
         useCreateBookingMutation();
 
     if (isLoading) {

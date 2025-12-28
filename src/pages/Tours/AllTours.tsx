@@ -25,9 +25,9 @@ const AllTours = () => {
     const division = searchParams.get("division") || undefined
 
     const [currentPage, setCurrentPage] = useState(1)
-    const [limit, setLimit] = useState(6)
+    // const [limit, setLimit] = useState(6)
 
-    const { data, isLoading } = useToursQuery({ limit: limit, page: currentPage,tourType,division });
+    const { data } = useToursQuery({ limit: 10, page: currentPage,tourType,division });
     const tours = data?.data ?? [];
 
     const totalPage = data?.meta?.totalPage

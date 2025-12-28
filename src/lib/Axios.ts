@@ -17,12 +17,19 @@ AxiosInstance.interceptors.request.use(function (config) {
 );
 
 // Aggiungi un interceptor alle risposte
-AxiosInstance.interceptors.response.use(function onFulfilled(response) {
-    // Qualsiasi codice di stato HTTP che si trova nel range dei 2xx farà triggerare questa funzione
-    // Fai qualcosa con la risposta
-    return response;
-  }, function onRejected(error) {
-    // Qualsiasi codice di stato HTTP che NON si trova nel range dei 2xx farà triggerare questa funzione
-    // Fai qualcosa con l'errore
-    return Promise.reject(error);
-  });
+AxiosInstance.interceptors.response.use(
+  (response)=>{return response},
+  async (error)=>{
+    if(error.response.status===5000 && error.response.data.message==="jwt expired")
+      {
+        console.log("your token os expired")
+        try {
+         const res= await AxiosInstance.post("/auth/refresh-token")
+        } catch(error)
+        {
+          console.log(error)
+        }
+      }
+    return Promise.reject(error.response)
+  }
+  );
