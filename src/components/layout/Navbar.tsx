@@ -18,18 +18,7 @@ const Navbar = () => {
     const [logout] = useLogoutMutation();
     const dispatch = useAppDispatch()
 
-    // const selectedDivision = searchParams.get("division") || undefined
 
-
-    // const { data: divisionData, isLoading: divisionLoading } = useDivisionsQuery(undefined);
-    // const divisions = divisionData || [];
-
-
-    // const handleDivisionChange = (value: string) => {
-    //     const params = new URLSearchParams(searchParams)
-    //     params.set("division", value)
-    //     setSearchParams(params)
-    // }
 
     const handleLogout = async () => {
         await logout(undefined);
@@ -90,25 +79,6 @@ const Navbar = () => {
                             </Button>
                         )}
 
-                        {/* <Select
-                            value={selectedDivision ? selectedDivision : ""}
-                            onValueChange={handleDivisionChange}
-                            disabled={divisionLoading}
-                        >
-                            <SelectTrigger className="w-[280px]">
-                                <SelectValue placeholder="All Divisions" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectGroup>
-                                    <SelectItem value={undefined as any}>All Divisions</SelectItem>
-                                    {divisions.map((division: any) => (
-                                        <SelectItem key={division._id} value={division._id}>
-                                            {division.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectGroup>
-                            </SelectContent>
-                        </Select> */}
                         <ModeToggle />
                     </div>
 
@@ -119,23 +89,55 @@ const Navbar = () => {
                                 <Menu className="h-5 w-5" />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent align="end" className="w-40 p-2 md:hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-md">
+                        <PopoverContent
+                            align="end"
+                            className="w-44 p-3 md:hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-md"
+                        >
                             <nav className="flex flex-col gap-2">
                                 {navigationLinks.map((link) => (
                                     <Link
                                         key={link.href}
                                         to={link.href}
-                                        className="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary py-1 px-2 rounded-md transition-colors"
+                                        className="text-gray-700 dark:text-gray-300 hover:text-primary py-1 px-2 rounded-md"
                                     >
                                         {link.label}
-
                                     </Link>
-
                                 ))}
                             </nav>
 
+                            {/* Divider */}
+                            <div className="my-2 border-t dark:border-gray-800" />
 
+                            {/* Mobile Actions */}
+                            <div className="flex flex-col gap-2">
+                                {!isLoading && !data?.email && (
+                                    <Button variant="outline" className="w-full">
+                                        <Link to="/login">Login</Link>
+                                    </Button>
+                                )}
+
+                                {data?.email && (
+                                    <Button onClick={handleLogout} variant="outline" className="w-full">
+                                        Logout
+                                    </Button>
+                                )}
+
+                                {(data?.role === "ADMIN" || data?.role === "SUPER_ADMIN") && (
+                                    <Button className="w-full">
+                                        <Link to="/admin">Dashboard</Link>
+                                    </Button>
+                                )}
+
+                                {data?.role === "USER" && (
+                                    <Button className="w-full">
+                                        <Link to="/user">Dashboard</Link>
+                                    </Button>
+                                )}
+
+                                <ModeToggle />
+                            </div>
                         </PopoverContent>
+
 
                     </Popover>
 
